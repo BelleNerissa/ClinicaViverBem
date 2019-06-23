@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <conio.h>
+#include <locale.h>
+
+struct Tconsulta
+{
+    int cod;
+    char nome_paciente [50];
+    char nome_medico [50];
+    char horario_consulta [10];
+    char data_consulta [10];
+
+};
+typedef struct Tconsulta consulta;
+
+/* Cadastrar a Consulta */
+void cadastroconsulta(FILE *fl)
+{
+    consulta cont;
+    int posicao, codigo;
+    printf("Digite o codigo: ");
+    fflush(stdin);
+    scanf("%d",&cont.cod);
+    posicao=localizacodigo(fl,cont.cod);
+    if(posicao==-1){
+        printf("Digite o nome do paciente: ");
+        fflush(stdin);
+        gets(cont.nome_paciente);
+
+        printf("Digite o nome do medico: ");
+        fflush(stdin);
+        gets(cont.nome_medico);
+
+        printf("Digite a data da consulta: ");
+        fflush(stdin);
+        gets(cont.data_consulta);
+
+        printf("Digite o horario da consulta: ");
+        fflush(stdin);
+        gets(cont.horario_consulta);
+
+
+        fseek(fl,0,SEEK_SET);
+        fwrite(&cont, sizeof(cont),1,fl);
+        fclose(fl);
+    }
+    else {
+        printf("Paciente ou Medico já está cadastrado no sistema. Por isso não foi incluido.\n");
+    }
+}
+/* Localizar o código do Paciente */
+  int localizacodigopaciente(FILE *fl, int cod) {
+    int posicao=-1,achou=0;
+    paciente pac;
+    fseek(fl,0,SEEK_SET);
+    fread(&pac, sizeof(pac),1, fl);
+    while (!feof(fl) && !achou)
+    {
+        posicao++;
+        if (pac.cod == cod)
+        {
+            achou=1;
+        }
+        fread(&pac, sizeof(pac), 1, fl);
+    }
+    if (achou)
+    {
+        return posicao;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+/* Localizar o código do Medico */
+ int localizacodigomedico(FILE *fl, int cod) {
+    int posicao=-1,achou=0;
+    medico med;
+    fseek(fl,0,SEEK_SET);
+    fread(&med, sizeof(med),1, fl);
+    while (!feof(fl) && !achou)
+    {
+        posicao++;
+        if (med.cod == cod)
+        {
+            achou=1;
+        }
+        fread(&med, sizeof(med), 1, fl);
+    }
+    if (achou)
+    {
+        return posicao;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+void main() {
+    setlocale(LC_ALL, "portuguese");
+
+    cadastroconsulta(fopen("db.bin", "ab+"));
+}
